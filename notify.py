@@ -33,7 +33,7 @@ def job():
         bot.send_message(message_id, text="Choi de ban oi")
 
 
-schedule.every().day.at("14:51").do(job)
+schedule.every().day.at("22:00").do(job)
 while True:
     schedule.run_pending()
     time.sleep(1)
