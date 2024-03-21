@@ -22,7 +22,7 @@ def job():
     item = {}
     tmr = check_day()
     item["tmr"] = tmr
-    sub_of_today = session.query(Schedule).filter_by(day=item["tmr"]).all()
+    sub_of_today = session.query(Schedule).filter_by(day=item["tmr"]).order_by(Schedule.lesson).all()
     convert = ["|Sub: {}|Lesson: {}|Room: {}|".format(item.subject, item.lesson, item.room) for item in
                sub_of_today]
     if convert:
@@ -33,7 +33,7 @@ def job():
         bot.send_message(message_id, text="Choi de ban oi")
 
 
-schedule.every().day.at("22:00").do(job)
+schedule.every().day.at("14:51").do(job)
 while True:
     schedule.run_pending()
     time.sleep(1)

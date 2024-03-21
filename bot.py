@@ -7,6 +7,7 @@ bot = telebot.TeleBot(config.token_tele)
 
 status = None
 day = None
+day_int = None
 count = None
 par_item = {}
 result = []
@@ -60,9 +61,20 @@ def delete_subject(message):
 def add_schedule_with_day(message):
     global status
     global day
+    global day_int
     global count
     bot.reply_to(message, text=f"You chosen {message.text}.")
     day = str(message.text).strip("/").title()
+    if day == "Mon":
+        day_int = 2
+    elif day == "Tue":
+        day_int = 3
+    elif day == "Wed":
+        day_int = 4
+    elif day == "Thu":
+        day_int = 5
+    elif day == "Fri":
+        day_int = 6
     bot.send_message(message.chat.id, "Nhap so mon ban muon nhap")
     count = "vao viec"
 
@@ -110,7 +122,7 @@ def reply(message):
             count -= 1
             i += 1
         i = 1
-        add_schedule(data=result, day=day)
+        add_schedule(data=result, day=day, day_int=day_int)
         bot.send_message(message.chat.id, text=f"Ban da nhap xong {result}")
         par_item = {}
         result = []
