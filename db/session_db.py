@@ -1,7 +1,8 @@
-from sqlalchemy.orm import sessionmaker, scoped_session
-from sqlalchemy import create_engine
-from config import psql_url
+from pymongo import MongoClient
+import config
 
-engine = create_engine(url=psql_url)
+client = MongoClient(config.mongo_url)
+db = client.schedule
+user = db.users
+schedule = db.bot_schedule
 
-session = scoped_session(sessionmaker(bind=engine))

@@ -11,7 +11,9 @@ day_int = None
 count = None
 par_item = {}
 result = []
+data_del = []
 i = 1
+j = 0
 
 
 @bot.message_handler(commands=['start', 'help'])
@@ -31,13 +33,20 @@ def view_sche(message):
     data = view_schedule()
     if data:
         view_str = ""
+        global j
         for item in data:
-            view_str += "id{}. |Day: {}|Sub: {}|Les: {}|Room: {}| \n".format(item["id"], item["Day"], item["Sub"],
-                                                                             item["Les"],
-                                                                             item["Room"])
+            j += 1
+            view_str += f"{j}. " + "|Day: {}|Sub: {}|Les: {}|Room: {}| \n".format(item["Day"], item["Sub"],
+                                                                                  item["Les"],
+                                                                                  item["Room"])
+
+            item_del = {"day": item["Day"], "subject": item["Sub"], "lesson": item["Les"], "room": item["Room"]}
+            data_del.append(item_del)
+        j = 0
         bot.send_message(message.chat.id, text=view_str)
         bot.send_message(message.chat.id,
-                         text="/add_schedule de them mon hoc.\n/delete_id de xoa mon hoc theo id\n/delete_all de xoa tat ca cac mon hoc")
+                         text="/add_schedule de them mon hoc.\n/delete_id de xoa mon hoc theo id\n/delete_all de xoa "
+                              "tat ca cac mon hoc")
         return
     bot.send_message(message.chat.id, text="Thoi khoa bieu cua ban khong co du lieu")
     bot.send_message(message.chat.id, text="/add_schedule de them cac mon hoc")
@@ -76,12 +85,7 @@ def add_schedule_with_day(message):
     elif day == "Fri":
         day_int = 6
     bot.send_message(message.chat.id, "Nhap so mon ban muon nhap")
-    count = "vao viec"
-
-
-@bot.message_handler(commands=["remove_schedule"])
-def remove_schedule(message):
-    bot.reply_to(message, f"Da xoa lich {message.text}")
+    status = "vao viec"
 
 
 @bot.message_handler(func=lambda msg: True)
@@ -92,10 +96,14 @@ def reply(message):
     global result
     global i
 
-    if count == "vao viec":
-        count = int(message.text)
-        status = "add_subject"
-
+    if status == "vao viec":
+        try:
+            if isinstance(int(message.text), int):
+                count = int(message.text)
+            status = "add_subject"
+        except ValueError:
+            bot.reply_to(message, "Ban nhap sai lua chon")
+            return
     if status == "add_subject":
         while count > 0:
             if "subject" not in par_item:
@@ -115,6 +123,8 @@ def reply(message):
 
             if "room" not in par_item:
                 par_item["room"] = message.text
+                par_item["day"] = day
+                par_item["day_int"] = day_int
                 message.text = 1
                 result.append(par_item)
                 par_item = {}
@@ -122,12 +132,15 @@ def reply(message):
             count -= 1
             i += 1
         i = 1
-        add_schedule(data=result, day=day, day_int=day_int)
+        add_schedule(data=result)
         bot.send_message(message.chat.id, text=f"Ban da nhap xong {result}")
         par_item = {}
         result = []
+        status = None
         return
+
     elif status == "delete_id":
+        global data_del
         solve_text = str(message.text).split(",")
         new_data = []
         for item in solve_text:
@@ -139,7 +152,8 @@ def reply(message):
                 bot.send_message(message.chat.id, text="/delete_id de thuc hien lai")
                 return
 
-        delete_schedule_id(new_data)
+        delete_schedule_id(new_data, data_del=data_del)
+        data_del = []
         bot.send_message(message.chat.id, text="Ban da xoa thanh cong cac mon hoc theo id")
         status = None
         return
