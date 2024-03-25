@@ -3,11 +3,12 @@ from datetime import datetime, timedelta
 from db.session_db import schedule
 import schedule
 import telebot
-
+from handler.news import news
 import config
 
 bot = telebot.TeleBot(config.token_tele)
 message_id = 1457896502
+group_id = -4019357479
 
 
 def check_day():
@@ -32,6 +33,7 @@ def job():
 
 
 schedule.every().day.at("22:00").do(job)
+schedule.every().day.at("06:00").do(news)
 while True:
     schedule.run_pending()
     time.sleep(1)

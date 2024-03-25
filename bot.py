@@ -15,6 +15,7 @@ data_del = []
 i = 1
 j = 0
 admin = 1457896502
+group_id = -4019357479
 
 
 @bot.message_handler(commands=['start', 'help'])
@@ -103,7 +104,7 @@ def add_schedule_with_day(message):
 
 @bot.message_handler(commands=["news"])
 def view_news(message):
-    news(message=message, bot=bot)
+    news(message=message, bot=bot, group_id=group_id)
     return
 
 
