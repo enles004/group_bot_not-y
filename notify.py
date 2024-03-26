@@ -7,7 +7,6 @@ from handler.news import news
 import config
 
 bot = telebot.TeleBot(config.token_tele)
-message_id = 1457896502
 group_id = -4019357479
 
 
@@ -26,10 +25,10 @@ def job():
                sub_of_today]
     if convert:
         text = "\n".join(convert)
-        bot.send_message(message_id, text="Nhung mon hoc ngay mai cua ban")
-        bot.send_message(message_id, text=text)
+        bot.send_message(group_id, text="Nhung mon hoc ngay mai")
+        bot.send_message(group_id, text=text)
     else:
-        bot.send_message(message_id, text="Choi de ban oi, mai duoc nghi ma")
+        bot.send_message(group_id, text="Choi de cac ban oi, mai duoc nghi.")
 
 
 schedule.every().day.at("22:00").do(job)

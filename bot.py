@@ -1,10 +1,12 @@
 import telebot
-
+import random
+import os
 import config
 from handler.news import news
 from handler.schedule import add_schedule, view_schedule, delete_schedule_all, delete_schedule_id
 
 bot = telebot.TeleBot(config.token_tele)
+files = os.listdir("gaixinh")
 status = None
 day = None
 day_int = None
@@ -20,10 +22,15 @@ group_id = -4019357479
 
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
-    bot.reply_to(message, text="Tôi là ai??\nTôi đang ở đâu thế này??\nview_schedule\nnews")
     if message.from_user.id == admin:
-        bot.send_message(message.chat.id, text="/add_schedule")
+        bot.send_message(message.chat.id,
+                         "Đây là những gì em có thể phục vụ cho ngài. 🥺\n/view_schedule để ngài có thể xem các môn học của UTT. 😉\n/news Em có thể giúp ngài cập nhật thông tin mới nhất ạ.. 😊\nNgài cần gì nè.. 😚")
         return
+    if message.chat.id != group_id:
+        bot.send_message(message.chat.id, f"Ngài Oh Fuoc không cho em phục vụ {message.chat.username}.")
+        return
+    bot.reply_to(message, text="Em là Lưu Hạo Tồn, chủ nhân của em là ngài Oh Fuoc. 🥰")
+    return
 
 
 @bot.message_handler(commands=["add_schedule"])
@@ -32,13 +39,32 @@ def add_sche(message):
         text = "Chon ngay.\n/mon\n/tue\n/wed\n/thu\n/fri"
         bot.reply_to(message, text=text)
         return
-    else:
-        bot.reply_to(message, text="Cu chỉ được xem thôi..")
+    if message.chat.id != group_id:
+        bot.send_message(message.chat.id, f"Ngài Oh Fuoc không cho em phục vụ {message.chat.username}.")
         return
+    bot.reply_to(message, text="Cu chỉ được xem thôi..")
+    return
 
+
+@bot.message_handler(commands=["imgs"])
+def add_image(message):
+    global files
+    if message.chat.id != group_id and message.chat.id != admin:
+        bot.send_message(message.chat.id, f"Ngài Oh Fuoc không cho em phục vụ {message.chat.username}. 😞")
+        return
+    random_img = random.choice(files)
+    path_img = os.path.join("gaixinh", random_img)
+    photo = open(path_img, "rb")
+    bot.send_photo(message.chat.id, photo)
+    files.remove(random_img)
+    os.remove(path_img)
+    return
 
 @bot.message_handler(commands=["view_schedule"])
 def view_sche(message):
+    if message.chat.id != group_id and message.from_user.id != admin:
+        bot.send_message(message.chat.id, f"Ngài Oh Fuoc không cho em phục vụ {message.chat.username}. 😞")
+        return
     data = view_schedule()
     if data:
         view_str = ""
@@ -71,9 +97,11 @@ def delete_subject(message):
             bot.send_message(admin, text="nhap cac id muon xoa cach nhau bang dau ','\nVi du: 1, 2, 3, 4 ...")
             status = "delete_id"
             return
-    else:
-        bot.reply_to(message, text="??? Định làm gì cơ..?")
+    if message.chat.id != group_id:
+        bot.send_message(message.chat.id, f"Ngài Oh Fuoc không cho em phục vụ {message.chat.username}. 😞")
         return
+    bot.reply_to(message, text="??? Định làm gì cơ..?")
+    return
 
 
 @bot.message_handler(commands=["mon", "tue", "wed", "thu", "fri"])
@@ -97,14 +125,17 @@ def add_schedule_with_day(message):
             day_int = 6
         bot.send_message(admin, "Nhap so mon ban muon nhap")
         status = "vao viec"
-    else:
-        bot.reply_to(message, text="??? Định làm cái quái gì nữa...")
+    elif message.chat.id != group_id or message.from_user.id != admin:
+        bot.send_message(message.chat.id, f"Ngài Oh Fuoc không cho em phục vụ {message.chat.username}. 😞")
         return
 
 
 @bot.message_handler(commands=["news"])
 def view_news(message):
-    news(message=message, bot=bot, group_id=group_id)
+    if message.chat.id != group_id:
+        bot.send_message(message.chat.id, f"Ngài Oh Fuoc không cho em phục vụ {message.chat.username}. 😞")
+        return
+    news(message=message, bot=bot)
     return
 
 
